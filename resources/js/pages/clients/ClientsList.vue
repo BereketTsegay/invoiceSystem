@@ -6,6 +6,64 @@
         <h1 class="text-2xl font-bold text-gray-900">Clients</h1>
         <p class="text-gray-600">Manage your client database</p>
       </div>
+      <!-- Enhanced Filters -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6 border border-gray-200">
+        <div class="flex flex-wrap gap-4 items-center">
+            <!-- Status Filter -->
+            <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select v-model="filters.status" @change="fetchClients" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="suspended">Suspended</option>
+                <option value="lead">Lead</option>
+            </select>
+            </div>
+
+            <!-- Priority Filter -->
+            <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+            <select v-model="filters.priority" @change="fetchClients" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="">All Priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="vip">VIP</option>
+            </select>
+            </div>
+
+            <!-- Industry Filter -->
+            <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+            <select v-model="filters.industry" @change="fetchClients" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="">All Industries</option>
+                <option value="technology">Technology</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="finance">Finance</option>
+                <option value="education">Education</option>
+                <option value="retail">Retail</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="other">Other</option>
+            </select>
+            </div>
+
+            <!-- Country Filter -->
+            <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <select v-model="filters.country" @change="fetchClients" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="">All Countries</option>
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="GB">United Kingdom</option>
+                <option value="AU">Australia</option>
+                <option value="other">Other</option>
+            </select>
+            </div>
+
+            <!-- Existing filters... -->
+        </div>
+        </div>
       <button
         v-if="authStore.can('client.create')"
         @click="showClientForm = true"
@@ -36,7 +94,91 @@
             {{ client.invoices_count }} invoices
           </span>
         </div>
-        
+        <!-- Enhanced Client Card in Grid View -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+        <!-- Client Header -->
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+                <div class="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center">
+                <span class="text-white font-medium text-sm">
+                    {{ getInitials(client.name) }}
+                </span>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 truncate max-w-[150px]">
+                {{ client.name }}
+                </h3>
+                <p class="text-sm text-gray-500 truncate max-w-[150px]">{{ client.email }}</p>
+                <div class="flex space-x-2 mt-1">
+                <span :class="getStatusBadgeClass(client.status)" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
+                    {{ client.status }}
+                </span>
+                <span :class="getPriorityBadgeClass(client.priority)" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
+                    {{ client.priority }}
+                </span>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Client Details -->
+        <div class="space-y-2 text-sm text-gray-600 mb-4">
+            <div v-if="client.contact_person" class="flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Contact: {{ client.contact_person }}
+            </div>
+
+            <div v-if="client.company_name" class="flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            {{ client.company_name }}
+            </div>
+
+            <div v-if="client.industry" class="flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            {{ client.industry }}
+            </div>
+
+            <div v-if="client.city && client.country" class="flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            {{ client.city }}, {{ client.country }}
+            </div>
+
+            <div class="flex items-center justify-between">
+            <span class="flex items-center">
+                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                {{ client.total_invoices || 0 }} invoices
+            </span>
+            <span class="font-medium text-blue-600">
+                {{ formatCurrency(client.total_revenue || 0) }}
+            </span>
+            </div>
+
+            <!-- Credit Limit Warning -->
+            <div v-if="client.credit_limit && client.outstanding_balance >= client.credit_limit * 0.8" class="bg-yellow-50 border border-yellow-200 rounded p-2 mt-2">
+            <div class="flex items-center">
+                <svg class="w-4 h-4 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span class="text-xs text-yellow-700">
+                Near credit limit ({{ ((client.outstanding_balance / client.credit_limit) * 100).toFixed(0) }}%)
+                </span>
+            </div>
+            </div>
+        </div>
+        </div>
         <div class="space-y-2 text-sm text-gray-600">
           <div class="flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +186,7 @@
             </svg>
             {{ client.email }}
           </div>
-          
+
           <div v-if="client.phone" class="flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
@@ -144,7 +286,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { useAuthStore } from '../../store';
 import axios from 'axios';
 import ClientForm from './ClientForm.vue';
@@ -199,4 +341,49 @@ const handleClientSaved = () => {
 onMounted(() => {
   fetchClients();
 });
+
+// Utility methods for badges and formatting
+const getStatusBadgeClass = (status) => {
+  const classes = {
+    active: 'bg-green-100 text-green-800',
+    inactive: 'bg-gray-100 text-gray-800',
+    suspended: 'bg-red-100 text-red-800',
+    lead: 'bg-blue-100 text-blue-800',
+  };
+  return classes[status] || 'bg-gray-100 text-gray-800';
+};
+
+const getPriorityBadgeClass = (priority) => {
+  const classes = {
+    low: 'bg-gray-100 text-gray-800',
+    medium: 'bg-yellow-100 text-yellow-800',
+    high: 'bg-orange-100 text-orange-800',
+    vip: 'bg-purple-100 text-purple-800',
+  };
+  return classes[priority] || 'bg-gray-100 text-gray-800';
+};
+
+// Enhanced filters object
+const filters = reactive({
+  status: '',
+  priority: '',
+  industry: '',
+  country: '',
+  sort_field: 'created_at',
+  sort_direction: 'desc'
+});
+const getInitials = (name) => {
+  return name
+    .split(' ')
+    .map(part => part.charAt(0))
+    .join('')
+    .toUpperCase()
+    .substring(0, 2);
+};
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount);
+};
 </script>

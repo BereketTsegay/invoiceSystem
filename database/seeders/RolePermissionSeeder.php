@@ -107,6 +107,27 @@ class RolePermissionSeeder extends Seeder
             ]);
         }
 
+                // Add client-specific permissions
+        $clientPermissions = [
+            'client.export' => 'Export clients',
+            'client.import' => 'Import clients',
+            'client.bulk_delete' => 'Bulk delete clients',
+            'client.view_contacts' => 'View client contacts',
+            'client.manage_contacts' => 'Manage client contacts',
+            'client.view_notes' => 'View client notes',
+            'client.manage_notes' => 'Manage client notes',
+        ];
+
+        foreach ($clientPermissions as $permission => $description) {
+            Permission::create([
+                'name' => $permission,
+                'group' => 'client',
+                'description' => $description,
+                'guard_name' => 'web',
+            ]);
+        }
+
+
         // Assign permissions to roles
         $superAdmin = Role::findByName('super-admin');
         $superAdmin->givePermissionTo(Permission::all());
@@ -119,6 +140,9 @@ class RolePermissionSeeder extends Seeder
             'user.view', 'user.create', 'user.edit', 'user.delete',
             'role.view', 'role.create', 'role.edit', 'role.delete',
             'system.settings',
+            'client.export', 'client.import', 'client.bulk_delete',
+            'client.view_contacts', 'client.manage_contacts',
+            'client.view_notes', 'client.manage_notes',
         ]);
 
         $manager = Role::findByName('manager');
@@ -127,6 +151,9 @@ class RolePermissionSeeder extends Seeder
             'client.create', 'client.edit', 'client.view',
             'report.view',
             'user.view',
+            'client.export',
+            'client.view_contacts', 'client.manage_contacts',
+            'client.view_notes', 'client.manage_notes',
         ]);
 
         $accountant = Role::findByName('accountant');

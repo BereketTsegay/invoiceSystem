@@ -12,7 +12,7 @@ class RoleController extends Controller
     public function index()
     {
         $this->authorize('role.view');
-        
+
         $roles = Role::with('permissions')->latest()->paginate(10);
         return response()->json($roles);
     }
