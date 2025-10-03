@@ -221,7 +221,7 @@ const fetchInvoices = async (page = 1) => {
       page: page,
       ...filters
     });
-    
+
     const response = await axios.get(`/api/invoices?${params}`);
     invoices.value = response.data;
   } catch (error) {

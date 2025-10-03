@@ -277,4 +277,21 @@ class Client extends Model
     {
         $this->update(['last_contacted_at' => now()]);
     }
+
+    /**
+     * Scope a query to only include clients suitable for dropdowns.
+     */
+    public function scopeForDropdown($query)
+    {
+        return $query->select([
+            'id',
+            'name',
+            'email',
+            'company_name',
+            'phone',
+            'payment_terms',
+            'credit_limit',
+            'currency'
+        ])->active()->orderBy('name');
+    }
 }

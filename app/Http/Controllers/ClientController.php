@@ -265,24 +265,50 @@ class ClientController extends Controller
     }
 
     /**
-     * Search clients by name or email.
-     */
-    public function search(Request $request)
-    {
-        $this->authorize('viewAny', Client::class);
+ * Search clients for dropdown and autocomplete.
+ */
+public function search(Request $request)
+{
+    $this->authorize('viewAny', Client::class);
 
-        $request->validate([
-            'query' => 'required|string|min:2',
-        ]);
+    return response()->json(['message' => 'ok']);
 
-        $clients = Client::where('name', 'like', "%{$request->query}%")
-            ->orWhere('email', 'like', "%{$request->query}%")
-            ->select(['id', 'name', 'email', 'phone'])
-            ->limit(10)
-            ->get();
+    $request->validate([
+        'query' => 'required|string|min:2',
+        'limit' => 'nullable|integer|min:1|max:50'
+    ]);
 
-        return response()->json($clients);
-    }
+    $query = $request->get('query');
+    $limit = $request->get('limit', 10);
+
+    $clients = Client::where(function ($q) use ($query) {
+        $q->where('name', 'like', "%{$query}%")
+          ->orWhere('email', 'like', "%{$query}%")
+          ->orWhere('company_name', 'like', "%{$query}%")
+          ->orWhere('contact_person', 'like', "%{$query}%");
+    })
+    ->select(['id', 'name', 'email', 'company_name', 'phone', 'payment_terms', 'credit_limit'])
+    ->orderBy('name')
+    ->limit($limit)
+    ->get();
+
+    return response()->json($clients);
+}
+
+/**
+ * Get clients for dropdown selection.
+ */
+public function dropdown(Request $request)
+{
+    $this->authorize('viewAny', Client::class);
+
+    $clients = Client::active()
+        ->select(['id', 'name', 'email', 'company_name', 'payment_terms', 'credit_limit'])
+        ->orderBy('name')
+        ->get();
+
+    return response()->json($clients);
+}
 
     /**
      * Get client's invoices.

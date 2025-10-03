@@ -30,33 +30,35 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/users/invite', [UserController::class, 'invite']);
     Route::post('/users/{user}/resend-invitation', [UserController::class, 'resendInvitation']);
     Route::get('/users/stats/invitations', [UserController::class, 'getInvitationStats']);
-    
+
     // Role management
     Route::apiResource('roles', RoleController::class);
     Route::get('/permissions', [RoleController::class, 'permissions']);
-    
+
     // Invoices
     Route::apiResource('invoices', InvoiceController::class);
     Route::post('invoices/{invoice}/send', [InvoiceController::class, 'sendInvoice']);
-    
+
     // Clients
     Route::apiResource('clients', ClientController::class);
-    
+
     // Reports
     Route::get('reports/sales', [ReportController::class, 'salesReport']);
     Route::get('reports/clients', [ReportController::class, 'clientReport']);
     Route::get('reports/dashboard-stats', [ReportController::class, 'dashboardStats']);
 
     //client
-
+    Route::apiResource('clients', ClientController::class);
     Route::get('/clients/stats', [ClientController::class, 'stats']);
     Route::get('/clients/search', [ClientController::class, 'search']);
     Route::get('/clients/export', [ClientController::class, 'export']);
     Route::post('/clients/import', [ClientController::class, 'import']);
     Route::post('/clients/bulk-delete', [ClientController::class, 'bulkDestroy']);
     Route::get('/clients/{client}/invoices', [ClientController::class, 'invoices']);
-    
-    Route::apiResource('clients', ClientController::class);
+
+   // Client routes for invoice form
+    Route::get('/clients/dropdown', [ClientController::class, 'dropdown']);
+
 
     // Invoice Item routes
 
